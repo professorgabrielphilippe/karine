@@ -1,10 +1,5 @@
 # app_final_google.py
 # -*- coding: utf-8 -*-
-"""
-Aplicativo Streamlit otimizado para navegação de registros por Categoria → Conceito → Registros.
-Paginação interna, Link/DOI com fallback Google Scholar e atualização imediata do status "Lido".
-Busca por termo implementada.
-"""
 
 import json
 from typing import List
@@ -209,3 +204,4 @@ if st.session_state["df"] is not None:
 
 st.divider()
 st.caption("Feito com Streamlit • Arquivo de Experiência • Universidade do Estado de Minas Gerais (UEMG) • 2025")
+
