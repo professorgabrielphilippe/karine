@@ -3,6 +3,7 @@
 """
 Aplicativo Streamlit otimizado para navegação de registros por Categoria → Conceito → Registros.
 Paginação interna, Link/DOI com fallback Google Scholar e atualização imediata do status "Lido".
+Busca por termo implementada.
 """
 
 import json
@@ -151,9 +152,16 @@ if st.session_state["df"] is not None:
             with st.expander(f"📂 {cat}", expanded=False):
                 for conc, records in data_dict[cat].items():
                     with st.expander(f"🧩 {conc}", expanded=False):
+                        # --- Campo de busca dentro do conceito ---
+                        search_term = st.text_input(f"🔍 Buscar termo em '{conc}'", value="", key=f"search_{cat}_{conc}")
+                        if search_term:
+                            filtered_records = [r for r in records if search_term.lower() in r["titulo_artigo"].lower()]
+                        else:
+                            filtered_records = records
+
                         start = st.session_state.get(f"page_{cat}_{conc}", 0)
                         end = start + PAGE_SIZE
-                        for row in records[start:end]:
+                        for row in filtered_records[start:end]:
                             id_reg = row.get("id_registro", "")
                             titulo = str(row.get("titulo_artigo","")).strip()
                             desc = str(row.get("descricao","")).strip()
@@ -165,7 +173,6 @@ if st.session_state["df"] is not None:
                             # Link e DOI com fallback
                             link_raw = str(row.get("link_acesso","")).strip()
                             doi_raw = str(row.get("doi","")).strip()
-
                             link_final = link_raw if link_raw.lower().startswith(("http://","https://")) else link_google_scholar
                             doi_final  = doi_raw if doi_raw.lower().startswith(("http://","https://")) else link_google_scholar
 
@@ -194,7 +201,7 @@ if st.session_state["df"] is not None:
                             )
 
                         # Botão carregar mais
-                        if end < len(records):
+                        if end < len(filtered_records):
                             if st.button("Carregar mais registros", key=f"btn_more_{cat}_{conc}"):
                                 st.session_state[f"page_{cat}_{conc}"] = end
                         else:
